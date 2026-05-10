@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f8f9ff;--sidebar:#ffffff;--card:#ffffff;--border:#e8eaf6;
+    --text:#1a1d3b;--muted:#6b7280;--accent1:#4f46e5;--accent2:#7c3aed;
+    --accent3:#2563eb;--success:#059669;--warning:#d97706;--danger:#dc2626;
+    --grad:linear-gradient(135deg,#4f46e5,#7c3aed);
+    --grad2:linear-gradient(135deg,#2563eb,#4f46e5);
+    --shadow:0 2px 16px rgba(79,70,229,0.08);
+    --radius:12px;--radius-sm:8px;
+  }
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+  .sidebar{width:240px;min-height:100vh;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;transition:.3s}
+  .logo{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+  .logo-inner{display:flex;align-items:center;gap:10px}
+  .logo-icon{width:36px;height:36px;border-radius:10px;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+  .logo-text{font-weight:700;font-size:15px;color:var(--text)}
+  .logo-sub{font-size:10px;color:var(--muted)}
+  .role-switch{padding:12px 16px;border-bottom:1px solid var(--border)}
+  .role-btn{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);cursor:pointer;background:var(--bg);font-size:12px;font-weight:500;width:100%;transition:.2s}
+  .role-btn:hover{border-color:var(--accent1)}
+  .role-tag{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+  .tag-student{background:#ede9fe;color:#6d28d9}
+  .tag-staff{background:#dbeafe;color:#1d4ed8}
+  .tag-admin{background:#fce7f3;color:#be185d}
+  .nav{flex:1;padding:12px 0;overflow-y:auto}
+  .nav-section{padding:0 16px;margin-bottom:4px}
+  .nav-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:8px 0 4px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:.2s;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:2px;position:relative}
+  .nav-item:hover{background:#f3f4f6;color:var(--text)}
+  .nav-item.active{background:#ede9fe;color:var(--accent1)}
+  .nav-item .icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .nav-badge{margin-left:auto;background:#ef4444;color:#fff;font-size:9px;padding:2px 6px;border-radius:10px;font-weight:600}
+  .sidebar-user{padding:16px;border-top:1px solid var(--border)}
+  .user-card{display:flex;align-items:center;gap:10px}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:13px;flex-shrink:0}
+  .user-info .name{font-size:13px;font-weight:600}
+  .user-info .id{font-size:11px;color:var(--muted)}
+  .main{margin-left:240px;flex:1;padding:24px;min-height:100vh}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+  .page-title{font-size:22px;font-weight:700}
+  .page-sub{font-size:13px;color:var(--muted);margin-top:2px}
+  .topbar-right{display:flex;align-items:center;gap:12px}
+  .btn{padding:8px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:13px;font-weight:500;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:var(--grad);color:#fff}
+  .btn-primary:hover{opacity:.9}
+  .btn-ghost{background:var(--card);border:1px solid var(--border);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--accent1);color:var(--accent1)}
+  .notif-btn{position:relative;width:36px;height:36px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:2px solid #fff}
+  .grid{display:grid;gap:16px}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-2{grid-template-columns:repeat(2,1fr)}
+  .card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:20px;box-shadow:var(--shadow);transition:.2s}
+  .card:hover{box-shadow:0 4px 24px rgba(79,70,229,0.12)}
+  .stat-card{position:relative;overflow:hidden}
+  .stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px}
+  .stat-val{font-size:28px;font-weight:700;line-height:1}
+  .stat-label{font-size:12px;color:var(--muted);margin-top:4px;font-weight:500}
+  .stat-trend{font-size:11px;margin-top:8px;display:flex;align-items:center;gap:4px}
+  .trend-up{color:var(--success)}
+  .trend-dn{color:var(--danger)}
+  .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .card-title{font-size:14px;font-weight:600}
+  .badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge-success{background:#d1fae5;color:#065f46}
+  .badge-warning{background:#fef3c7;color:#92400e}
+  .badge-danger{background:#fee2e2;color:#991b1b}
+  .badge-info{background:#dbeafe;color:#1e40af}
+  .badge-purple{background:#ede9fe;color:#5b21b6}
+  .progress-bar{height:8px;background:#f3f4f6;border-radius:20px;overflow:hidden}
+  .progress-fill{height:100%;border-radius:20px;transition:.6s}
+  .fill-green{background:linear-gradient(90deg,#10b981,#34d399)}
+  .fill-blue{background:var(--grad2)}
+  .fill-purple{background:var(--grad)}
+  .fill-amber{background:linear-gradient(90deg,#f59e0b,#fcd34d)}
+  .fill-red{background:linear-gradient(90deg,#ef4444,#f87171)}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;border-bottom:1px solid var(--border)}
+  td{padding:10px 12px;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#fafbff}
+  .att-pct{font-weight:700;font-size:13px}
+  .att-high{color:var(--success)}
+  .att-low{color:var(--danger)}
+  .att-mid{color:var(--warning)}
+  .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal-day{width:100%;aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:pointer;transition:.15s}
+  .cal-p{background:#d1fae5;color:#065f46}
+  .cal-a{background:#fee2e2;color:#991b1b}
+  .cal-h{background:#f3f4f6;color:#9ca3af}
+  .cal-t{background:var(--grad);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.3)}
+  .cal-header{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+  .cal-dname{text-align:center;font-size:10px;font-weight:600;color:var(--muted)}
+  .subject-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+  .subject-row:last-child{border-bottom:none}
+  .subject-name{font-size:13px;font-weight:500}
+  .subject-code{font-size:11px;color:var(--muted)}
+  .ai-chat{display:flex;flex-direction:column;height:300px}
+  .chat-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;padding:4px}
+  .msg{padding:10px 14px;border-radius:var(--radius);max-width:85%;font-size:13px;line-height:1.5}
+  .msg-bot{background:#ede9fe;color:#4c1d95;align-self:flex-start}
+  .msg-user{background:var(--grad);color:#fff;align-self:flex-end}
+  .chat-input{display:flex;gap:8px}
+  .chat-input input{flex:1;padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;outline:none;font-family:inherit}
+  .chat-input input:focus{border-color:var(--accent1)}
+  .typing{display:flex;gap:4px;align-items:center;padding:10px 14px;background:#ede9fe;border-radius:var(--radius);width:60px;align-self:flex-start}
+  .dot{width:6px;height:6px;background:#7c3aed;border-radius:50%;animation:bounce .8s infinite}
+  .dot:nth-child(2){animation-delay:.15s}
+  .dot:nth-child(3){animation-delay:.3s}
+  @keyframes bounce{0%,80%,100%{transform:scale(.7)}40%{transform:scale(1)}}
+  .timeline{display:flex;flex-direction:column;gap:0}
+  .timeline-item{display:flex;gap:12px;padding:10px 0}
+  .tl-dot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0}
+  .tl-line{width:1px;background:var(--border);flex-shrink:0;margin-left:4px}
+  .tl-content{flex:1}
+  .tl-title{font-size:13px;font-weight:500}
+  .tl-sub{font-size:11px;color:var(--muted);margin-top:2px}
+  .map-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+  .room{padding:8px;border-radius:6px;text-align:center;font-size:10px;font-weight:600;cursor:pointer;transition:.2s}
+  .room-free{background:#d1fae5;color:#065f46}
+  .room-occ{background:#fee2e2;color:#991b1b}
+  .room-you{background:var(--grad);color:#fff}
+  .chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;transition:.2s}
+  .chip:hover,.chip.active{background:var(--grad);color:#fff;border-color:transparent}
+  .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 37%,#f0f0f0 63%);background-size:400% 100%;animation:skeleton 1.4s ease infinite;border-radius:6px}
+  @keyframes skeleton{0%{background-position:100% 50%}100%{background-position:0 50%}}
+  .section{margin-bottom:24px}
+  .hidden{display:none!important}
+  .role-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.1);margin-top:4px}
+  .role-opt{padding:10px 12px;cursor:pointer;font-size:13px;font-weight:500;transition:.2s;display:flex;align-items:center;gap:8px}
+  .role-opt:hover{background:#f9fafb}
+  .ava-sm{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
+  .profile-completion{height:6px;background:#f3f4f6;border-radius:20px;overflow:hidden;margin-top:6px}
+  .upload-box{border:2px dashed var(--border);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:.2s;color:var(--muted);font-size:13px}
+  .upload-box:hover{border-color:var(--accent1);background:#fafbff}
+  .qr-box{width:80px;height:80px;background:var(--text);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px}
+  .alert{padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+  .alert-warn{background:#fef3c7;border-left:3px solid var(--warning);color:#78350f}
+  .alert-info{background:#eff6ff;border-left:3px solid var(--accent3);color:#1e40af}
+  .alert-success{background:#d1fae5;border-left:3px solid var(--success);color:#065f46}
+  .gpa-circle{width:80px;height:80px;position:relative}
+  .gpa-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .grade-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .grade-row:last-child{border-bottom:none}
+  .grade-letter{font-weight:700;font-size:15px}
+  .grade-A{color:#059669}
+  .grade-B{color:#2563eb}
+  .grade-C{color:#d97706}
+  .notif-panel{position:fixed;top:0;right:0;width:320px;height:100vh;background:#fff;border-left:1px solid var(--border);z-index:500;box-shadow:-4px 0 20px rgba(0,0,0,.08);transform:translateX(100%);transition:.3s;padding:20px;overflow-y:auto}
+  .notif-panel.open{transform:translateX(0)}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:400;opacity:0;pointer-events:none;transition:.3s}
+  .overlay.open{opacity:1;pointer-events:auto}
+  .notif-item{padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:.2s}
+  .notif-item:hover{background:#fafbff;border-color:var(--accent1)}
+  .notif-item.unread{background:#fafbff;border-color:#c7d2fe}
+  canvas{display:block}
+  @media(max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:1fr 1fr}.sidebar{width:60px}.sidebar:hover{width:240px}.main{margin-left:60px}.logo-text,.logo-sub,.nav-label,.user-info,.nav-item span{opacity:0;overflow:hidden;white-space:nowrap}.sidebar:hover .logo-text,.sidebar:hover .logo-sub,.sidebar:hover .nav-label,.sidebar:hover .user-info,.sidebar:hover .nav-item span{opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeNotif()"></div>
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-inner">
+      <div class="logo-icon">ERP</div>
+      <div>
+        <div class="logo-text">UniCampus</div>
+        <div class="logo-sub">International Institute</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="role-switch" style="position:relative">
+    <div class="role-btn" onclick="toggleRoleDrop()">
+      <span id="roleLabel">Student</span>
+      <span class="role-tag tag-student" id="roleTag">Student</span>
+    </div>
+    <div class="role-dropdown hidden" id="roleDrop">
+      <div class="role-opt" onclick="switchRole('student')"><span class="ava-sm" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">S</span>Student</div>
+      <div class="role-opt" onclick="switchRole('staff')"><span class="ava-sm" style="background:linear-gradient(135deg,#2563eb,#0ea5e9)">T</span>Staff</div>
+      <div class="role-opt" onclick="switchRole('admin')"><span class="ava-sm" style="background:linear-gradient(135deg,#be185d,#ec4899)">A</span>Admin</div>
+    </div>
+  </div>
+
+  <nav class="nav" id="navMenu"></nav>
+
+  <div class="sidebar-user">
+    <div class="user-card">
+      <div class="avatar" id="sideAvatar">AK</div>
+      <div class="user-info">
+        <div class="name" id="sideUser">Arjun Kumar</div>
+        <div class="id" id="sideId">CS2021001</div>
+        <div class="profile-completion">
+          <div class="progress-fill fill-purple" style="width:82%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main" id="mainContent">
+</main>
+
+<div class="notif-panel" id="notifPanel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div style="font-weight:600;font-size:16px">Notifications</div>
+    <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="closeNotif()">Close</button>
+  </div>
+  <div class="notif-item unread">
+    <div style="font-weight:600;font-size:13px">Exam Schedule Released</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">End-semester exams start Dec 10, 2024</div>
+    <div style="font-size:11px;color:var(--accent1);margin-top:4px">2 hours ago</div>
+  </div>
+  <div class="notif-item unread">
+    <div style="font-weight:600;font-size:13px">Attendance Alert</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">Your Data Structures attendance is at 68% — below minimum</div>
+    <div style="font-size:11px;color:var(--danger);margin-top:4px">5 hours ago</div>
+  </div>
+  <div class="notif-item">
+    <div style="font-weight:600;font-size:13px">Fee Payment Reminder</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">Semester 5 fees due by Nov 30, 2024</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px">1 day ago</div>
+  </div>
+  <div class="notif-item">
+    <div style="font-weight:600;font-size:13px">Result Published</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">Semester 4 results are now available</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px">3 days ago</div>
+  </div>
+  <div class="notif-item">
+    <div style="font-weight:600;font-size:13px">Timetable Updated</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">Sem 5 timetable uploaded by the department</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px">5 days ago</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let currentRole='student';
+let currentPage='dashboard';
+let charts={};
+
+const navConfigs={
+  student:[
+    {section:'Overview',items:[{id:'dashboard',icon:'🏠',label:'Dashboard'},{id:'profile',icon:'👤',label:'Profile'}]},
+    {section:'Academics',items:[{id:'courses',icon:'📚',label:'Courses'},{id:'attendance',icon:'📊',label:'Attendance'},{id:'timetable',icon:'🗓️',label:'Timetable'},{id:'results',icon:'📄',label:'Results & Grades'}]},
+    {section:'Campus',items:[{id:'payments',icon:'💳',label:'Payments'},{id:'campus',icon:'🏫',label:'Campus Map'},{id:'transport',icon:'🚌',label:'Transport'}]},
+    {section:'Tools',items:[{id:'notifications',icon:'🔔',label:'Notifications',badge:4},{id:'ai',icon:'🤖',label:'AI Assistant'}]}
+  ],
+  staff:[
+    {section:'Overview',items:[{id:'dashboard',icon:'🏠',label:'Dashboard'},{id:'profile',icon:'👤',label:'Profile'}]},
+    {section:'Academics',items:[{id:'attendance',icon:'📊',label:'Mark Attendance'},{id:'results',icon:'📄',label:'Upload Results'},{id:'timetable',icon:'🗓️',label:'Timetable'}]},
+    {section:'Communication',items:[{id:'notifications',icon:'🔔',label:'Send Notifications'},{id:'ai',icon:'🤖',label:'AI Assistant'}]}
+  ],
+  admin:[
+    {section:'Overview',items:[{id:'dashboard',icon:'🏠',label:'Dashboard'}]},
+    {section:'Management',items:[{id:'students',icon:'🎓',label:'Students'},{id:'staff',icon:'👩‍🏫',label:'Staff'},{id:'courses',icon:'📚',label:'Courses'}]},
+    {section:'Academic Control',items:[{id:'timetable',icon:'🗓️',label:'Timetables'},{id:'attendance',icon:'📊',label:'Undertakings'},{id:'results',icon:'📄',label:'Results'}]},
+    {section:'Infrastructure',items:[{id:'campus',icon:'🏫',label:'Rooms & Campus'},{id:'transport',icon:'🚌',label:'Transport'},{id:'payments',icon:'💳',label:'Finance'}]},
+    {section:'System',items:[{id:'notifications',icon:'🔔',label:'Announcements',badge:2},{id:'ai',icon:'🤖',label:'AI Analytics'}]}
+  ]
+};
+
+const userMeta={
+  student:{name:'Arjun Kumar',id:'CS2021001',initials:'AK',grad:'linear-gradient(135deg,#7c3aed,#4f46e5)',roleClass:'tag-student',roleText:'Student'},
+  staff:{name:'Dr. Priya Menon',id:'FAC-CS-042',initials:'PM',grad:'linear-gradient(135deg,#2563eb,#0ea5e9)',roleClass:'tag-staff',roleText:'Staff'},
+  admin:{name:'Admin Singh',id:'ADMIN-001',initials:'AS',grad:'linear-gradient(135deg,#be185d,#ec4899)',roleClass:'tag-admin',roleText:'Admin'}
+};
+
+function buildNav(){
+  const nav=document.getElementById('navMenu');
+  nav.innerHTML='';
+  (navConfigs[currentRole]||[]).forEach(section=>{
+    const sec=document.createElement('div');
+    sec.className='nav-section';
+    sec.innerHTML=`<div class="nav-label">${section.section}</div>`;
+    section.items.forEach(item=>{
+      const el=document.createElement('div');
+      el.className='nav-item'+(currentPage===item.id?' active':'');
+      el.innerHTML=`<span class="icon">${item.icon}</span><span>${item.label}</span>${item.badge?`<span class="nav-badge">${item.badge}</span>`:''}`;
+      el.onclick=()=>navigateTo(item.id);
+      sec.appendChild(el);
+    });
+    nav.appendChild(sec);
+  });
+}
+
+function navigateTo(page){
+  currentPage=page;
+  Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}});
+  charts={};
+  buildNav();
+  renderPage();
+}
+
+function switchRole(role){
+  currentRole=role;
+  currentPage='dashboard';
+  const meta=userMeta[role];
+  document.getElementById('sideAvatar').textContent=meta.initials;
+  document.getElementById('sideAvatar').style.background=meta.grad;
+  document.getElementById('sideUser').textContent=meta.name;
+  document.getElementById('sideId').textContent=meta.id;
+  document.getElementById('roleLabel').textContent=meta.roleText;
+  const tag=document.getElementById('roleTag');
+  tag.textContent=meta.roleText;
+  tag.className='role-tag '+meta.roleClass;
+  document.getElementById('roleDrop').classList.add('hidden');
+  buildNav();
+  renderPage();
+}
+
+function toggleRoleDrop(){document.getElementById('roleDrop').classList.toggle('hidden')}
+
+function openNotif(){document.getElementById('notifPanel').classList.add('open');document.getElementById('overlay').classList.add('open')}
+function closeNotif(){document.getElementById('notifPanel').classList.remove('open');document.getElementById('overlay').classList.remove('open')}
+
+function renderPage(){
+  const el=document.getElementById('mainContent');
+  const skeletons=`<div class="grid grid-4" style="margin-bottom:24px">${[...Array(4)].map(()=>`<div class="card" style="height:100px"><div class="skeleton" style="height:14px;width:60%;margin-bottom:10px"></div><div class="skeleton" style="height:28px;width:40%"></div></div>`).join('')}</div><div class="grid grid-2"><div class="card" style="height:240px"><div class="skeleton" style="height:100%"></div></div><div class="card" style="height:240px"><div class="skeleton" style="height:100%"></div></div></div>`;
+  el.innerHTML=`<div class="topbar"><div><div class="page-title skeleton" style="width:200px;height:24px"></div></div></div>${skeletons}`;
+  setTimeout(()=>{
+    if(currentRole==='student') renderStudentPage(el);
+    else if(currentRole==='staff') renderStaffPage(el);
+    else renderAdminPage(el);
+  },400);
+}
+
+function topbar(title,sub,extra=''){
+  return `<div class="topbar"><div><div class="page-title">${title}</div><div class="page-sub">${sub}</div></div><div class="topbar-right">${extra}<button class="notif-btn" onclick="openNotif()">🔔<div class="notif-dot"></div></button></div></div>`;
+}
+
+function renderStudentPage(el){
+  if(currentPage==='dashboard') el.innerHTML=topbar('Good Morning, Arjun! 👋','Thursday, November 21, 2024 — Semester 5',`<button class="btn btn-primary">📥 Download ID Card</button>`)+studentDashboard();
+  else if(currentPage==='profile') el.innerHTML=topbar('My Profile','Manage your personal and academic information')+studentProfile();
+  else if(currentPage==='courses') el.innerHTML=topbar('My Courses','Semester 5 — B.Tech Computer Science')+studentCourses();
+  else if(currentPage==='attendance') el.innerHTML=topbar('Attendance','Track your attendance across all subjects')+studentAttendance();
+  else if(currentPage==='timetable') el.innerHTML=topbar('Timetable & Exams','Your schedule for Semester 5')+studentTimetable();
+  else if(currentPage==='results') el.innerHTML=topbar('Results & Answer Scripts','Academic performance overview')+studentResults();
+  else if(currentPage==='payments') el.innerHTML=topbar('Fee & Payments','Manage tuition fees and payment history')+studentPayments();
+  else if(currentPage==='campus') el.innerHTML=topbar('Campus Map','Room availability and campus navigation')+studentCampus();
+  else if(currentPage==='transport') el.innerHTML=topbar('Transport','Bus routes and schedules')+studentTransport();
+  else if(currentPage==='ai') el.innerHTML=topbar('AI Assistant','Ask anything about your academics')+studentAI();
+  else if(currentPage==='notifications') el.innerHTML=topbar('Notifications','Your alerts and announcements')+studentNotifications();
+  else el.innerHTML=topbar(currentPage,'—')+'<div class="card"><p style="color:var(--muted);font-size:13px">Content for this section coming soon.</p></div>';
+  initCharts();
+  initAI();
+}
+
+function studentDashboard(){
+  return `
+  <div class="grid grid-4 section">
+    <div class="card stat-card">
+      <div class="stat-icon" style="background:#ede9fe">📊</div>
+      <div class="stat-val">78.4%</div>
+      <div class="stat-label">Overall Attendance</div>
+      <div class="progress-bar" style="margin-top:8px"><div class="progress-fill fill-purple" style="width:78.4%"></div></div>
+      <div class="stat-trend trend-up">↑ 2.1% from last month</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-icon" style="background:#dbeafe">📚</div>
+      <div class="stat-val">6</div>
+      <div class="stat-label">Active Courses</div>
+      <div class="stat-trend" style="color:var(--muted)">21 total credits</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-icon" style="background:#d1fae5">🏆</div>
+      <div class="stat-val">8.72</div>
+      <div class="stat-label">Current CGPA</div>
+      <div class="stat-trend trend-up">↑ 0.3 from Sem 4</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-icon" style="background:#fef3c7">💳</div>
+      <div class="stat-val">₹12,500</div>
+      <div class="stat-label">Fee Due</div>
+      <div class="stat-trend trend-dn">Due: Nov 30, 2024</div>
+    </div>
+  </div>
+
+  <div class="alert alert-warn section">
+    ⚠️ <div><strong>Low Attendance Alert:</strong> Your Data Structures (CS501) attendance is at 68%, below the required 75%. An undertaking letter has been auto-generated. <a href="#" onclick="navigateTo('attendance');return false" style="color:var(--warning);font-weight:600">View & Download →</a></div>
+  </div>
+
+  <div class="grid grid-2 section">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Attendance Overview</div><span class="badge badge-info">Sem 5</span></div>
+      <div style="position:relative;height:200px"><canvas id="attChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Performance Trend</div><span class="badge badge-success">GPA</span></div>
+      <div style="position:relative;height:200px"><canvas id="gpaChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid grid-2 section">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Today's Classes</div><span class="badge badge-purple">Thursday</span></div>
+      <div class="timeline">
+        ${[['9:00 AM','Data Structures','CS501 · Room 204','#4f46e5'],['11:00 AM','Computer Networks','CS503 · Lab 3','#059669'],['2:00 PM','Machine Learning','CS507 · Room 108','#2563eb'],['4:00 PM','Engineering Ethics','HS501 · Room 301','#d97706']].map(([t,s,r,c])=>`<div class="timeline-item"><div style="display:flex;flex-direction:column;align-items:center"><div class="tl-dot" style="background:${c}"></div><div class="tl-line" style="flex:1;margin-top:4px;margin-bottom:-4px"></div></div><div class="tl-content"><div class="tl-title">${s}</div><div class="tl-sub">${t} · ${r}</div></div></div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Upcoming Exams</div><span class="badge badge-danger">5 days</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Subject</th><th>Date</th><th>Time</th><th>Room</th></tr></thead>
+          <tbody>
+            <tr><td><div style="font-weight:500">Data Structures</div><div style="font-size:11px;color:var(--muted)">CS501</div></td><td>Dec 10</td><td>10 AM</td><td>A201</td></tr>
+            <tr><td><div style="font-weight:500">Computer Networks</div><div style="font-size:11px;color:var(--muted)">CS503</div></td><td>Dec 12</td><td>2 PM</td><td>B105</td></tr>
+            <tr><td><div style="font-weight:500">Machine Learning</div><div style="font-size:11px;color:var(--muted)">CS507</div></td><td>Dec 14</td><td>10 AM</td><td>A301</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function studentProfile(){
+  return `<div class="grid grid-2 section">
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+        <div style="position:relative">
+          <div style="width:80px;height:80px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700">AK</div>
+          <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--accent1);border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer">✏️</div>
+        </div>
+        <div>
+          <div style="font-size:18px;font-weight:700">Arjun Kumar</div>
+          <div style="font-size:12px;color:var(--muted)">B.Tech Computer Science · Semester 5</div>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <span class="badge badge-success">Active</span>
+            <span class="badge badge-info">On Campus</span>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">Profile Completion</div>
+      <div class="progress-bar"><div class="progress-fill fill-purple" style="width:82%"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">82% complete · Add address to complete</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Personal Information</div><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px">Edit</button></div>
+      ${[['Full Name','Arjun Kumar'],['Date of Birth','15 March 2003'],['Gender','Male'],['Blood Group','O+'],['Phone','+91 98765 43210'],['Email','arjun.kumar@unicampus.edu']].map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--muted)">${k}</span><span style="font-weight:500">${v}</span></div>`).join('')}
+    </div>
+  </div>
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">Academic Details</div></div>
+      ${[['Register No.','CS2021001',true],['Department','Computer Science',true],['Batch','2021–2025'],['Semester','5th Semester'],['Section','A'],['Advisor','Dr. Priya Menon']].map(([k,v,ro])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--muted)">${k}</span><span style="font-weight:500${ro?';color:var(--muted)':''}">${v}${ro?' 🔒':''}</span></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Update Profile Picture</div></div>
+      <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileIn').click()">
+        <div style="font-size:32px;margin-bottom:8px">📷</div>
+        <div style="font-weight:500;color:var(--text)">Click to upload photo</div>
+        <div style="font-size:11px;margin-top:4px">JPG, PNG up to 5MB</div>
+      </div>
+      <input type="file" id="fileIn" accept="image/*" style="display:none" onchange="previewImg(this)">
+      <div id="imgPreview" style="display:none;margin-top:12px;text-align:center">
+        <img id="prevImg" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--accent1)">
+        <div style="margin-top:8px;display:flex;gap:8px;justify-content:center">
+          <button class="btn btn-primary" style="font-size:12px;padding:6px 12px">Save</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:6px 12px" onclick="document.getElementById('imgPreview').style.display='none'">Remove</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`;
+}
+
+function studentCourses(){
+  const courses=[
+    {code:'CS501',name:'Data Structures & Algorithms',credits:4,type:'Theory',faculty:'Dr. R. Mehta',status:'Active'},
+    {code:'CS502',name:'Operating Systems',credits:4,type:'Theory',faculty:'Dr. S. Iyer',status:'Active'},
+    {code:'CS503',name:'Computer Networks',credits:3,type:'Theory',faculty:'Prof. K. Nair',status:'Active'},
+    {code:'CS504',name:'Networks Lab',credits:2,type:'Lab',faculty:'Prof. K. Nair',status:'Active'},
+    {code:'CS507',name:'Machine Learning',credits:4,type:'Theory',faculty:'Dr. A. Rao',status:'Active'},
+    {code:'HS501',name:'Engineering Ethics',credits:2,type:'Theory',faculty:'Dr. P. Joshi',status:'Active'},
+  ];
+  return `<div class="card section">
+  <div style="display:flex;gap:8px;margin-bottom:16px">
+    <span class="chip active">All (6)</span><span class="chip">Theory (5)</span><span class="chip">Lab (1)</span>
+  </div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Code</th><th>Subject</th><th>Credits</th><th>Type</th><th>Faculty</th><th>Status</th></tr></thead>
+    <tbody>${courses.map(c=>`<tr><td><code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:12px">${c.code}</code></td><td style="font-weight:500">${c.name}</td><td>${c.credits}</td><td><span class="badge ${c.type==='Lab'?'badge-info':'badge-purple'}">${c.type}</span></td><td style="font-size:12px;color:var(--muted)">${c.faculty}</td><td><span class="badge badge-success">${c.status}</span></td></tr>`).join('')}
+    </tbody>
+  </table>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:13px">
+    <span style="color:var(--muted)">Total Credits this Semester</span>
+    <span style="font-weight:700;font-size:18px">19</span>
+  </div>
+</div>`;
+}
+
+function studentAttendance(){
+  const subjects=[
+    {name:'Data Structures',code:'CS501',pct:68,present:27,total:40},
+    {name:'Operating Systems',code:'CS502',pct:85,present:34,total:40},
+    {name:'Computer Networks',code:'CS503',pct:92,present:33,total:36},
+    {name:'Networks Lab',code:'CS504',pct:88,present:22,total:25},
+    {name:'Machine Learning',code:'CS507',pct:76,present:28,total:37},
+    {name:'Engineering Ethics',code:'HS501',pct:82,present:18,total:22},
+  ];
+  const cal=[];
+  for(let i=1;i<=30;i++){
+    const r=Math.random();
+    cal.push(r<.05?'h':r<.25?'a':'p');
+  }
+  return `
+  <div class="alert alert-warn">⚠️ <div><strong>CS501 — Data Structures:</strong> Attendance is 68%, below the 75% threshold. An undertaking letter has been auto-generated. Download and submit signed copy for admin approval.</div></div>
+  
+  <div class="grid grid-2 section">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Subject-wise Attendance</div><span class="badge badge-info">Sem 5</span></div>
+      ${subjects.map(s=>{
+        const cl=s.pct>=75?'att-high':s.pct>=65?'att-mid':'att-low';
+        const fc=s.pct>=75?'fill-green':s.pct>=65?'fill-amber':'fill-red';
+        return `<div class="subject-row"><div><div class="subject-name">${s.name}</div><div class="subject-code">${s.code} · ${s.present}/${s.total} classes</div><div class="progress-bar" style="margin-top:6px;width:100%"><div class="progress-fill ${fc}" style="width:${s.pct}%"></div></div></div><div class="att-pct ${cl}" style="margin-left:16px">${s.pct}%</div></div>`;
+      }).join('')}
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><div class="card-title">November 2024</div></div>
+        <div class="cal-header">${['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=>`<div class="cal-dname">${d}</div>`).join('')}</div>
+        <div class="calendar">
+          ${[...Array(4)].map(()=>`<div class="cal-day cal-h"></div>`).join('')}
+          ${cal.map((t,i)=>`<div class="cal-day cal-${i===20?'t':t}" title="${i+1} Nov">${i+1}</div>`).join('')}
+        </div>
+        <div style="display:flex;gap:12px;margin-top:12px;font-size:11px">
+          <span><span style="display:inline-block;width:10px;height:10px;background:#d1fae5;border-radius:2px;margin-right:4px"></span>Present</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#fee2e2;border-radius:2px;margin-right:4px"></span>Absent</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#f3f4f6;border-radius:2px;margin-right:4px"></span>Holiday</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Undertaking Letter</div><span class="badge badge-danger">Action Needed</span></div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Auto-generated for CS501 — Data Structures (68%). Requires Admin approval after submission.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="alert('📄 PDF generated and downloading...')">📥 Download Letter</button>
+          <button class="btn btn-ghost" onclick="alert('📤 Upload signed copy here')">📤 Upload Signed</button>
+        </div>
+        <div style="margin-top:12px;padding:10px;background:#f9fafb;border-radius:var(--radius-sm);font-size:12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--muted)">Status</span><span class="badge badge-warning">Pending</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Submitted</span><span>—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function studentTimetable(){
+  const days=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  const schedule={Monday:['DS','OS','—','CN','ML'],Tuesday:['OS','—','ML','DS','Ethics'],Wednesday:['CN','DS','OS','—','Lab'],Thursday:['ML','Ethics','—','CN','DS'],Friday:['OS','CN','ML','—','Ethics']};
+  const times=['9–10 AM','10–11 AM','11–12 PM','1–2 PM','2–3 PM'];
+  const colors={'DS':'#ede9fe','OS':'#dbeafe','CN':'#d1fae5','ML':'#fef3c7','Ethics':'#fce7f3','Lab':'#fee2e2','—':'#f9fafb'};
+  const textC={'DS':'#5b21b6','OS':'#1e40af','CN':'#065f46','ML':'#78350f','Ethics':'#9d174d','Lab':'#991b1b','—':'#9ca3af'};
+  return `<div class="card section">
+  <div class="table-wrap">
+  <table style="min-width:600px">
+    <thead><tr><th>Time</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead>
+    <tbody>${times.map((t,i)=>`<tr><td style="font-size:12px;color:var(--muted);white-space:nowrap">${t}</td>${days.map(d=>{const s=(schedule[d]||[])[i]||'—';return`<td><div style="background:${colors[s]||'#f9fafb'};color:${textC[s]||'#6b7280'};padding:6px 10px;border-radius:6px;font-size:12px;font-weight:500;text-align:center">${s}</div></td>`}).join('')}</tr>`).join('')}
+    </tbody>
+  </table>
+  </div>
+  </div>
+  <div class="card section">
+    <div class="card-header"><div class="card-title">End-Semester Exam Schedule</div><span class="badge badge-danger">Dec 2024</span></div>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Subject</th><th>Code</th><th>Date</th><th>Time</th><th>Venue</th><th>Invigilator</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:500">Data Structures</td><td><code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:11px">CS501</code></td><td>Dec 10</td><td>10 AM–1 PM</td><td>A-Block Hall 2</td><td>Dr. R. Mehta</td></tr>
+        <tr><td style="font-weight:500">Operating Systems</td><td><code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:11px">CS502</code></td><td>Dec 11</td><td>10 AM–1 PM</td><td>A-Block Hall 1</td><td>Dr. S. Iyer</td></tr>
+        <tr><td style="font-weight:500">Computer Networks</td><td><code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:11px">CS503</code></td><td>Dec 12</td><td>2 PM–5 PM</td><td>B-Block Hall 3</td><td>Prof. K. Nair</td></tr>
+        <tr><td style="font-weight:500">Machine Learning</td><td><code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:11px">CS507</code></td><td>Dec 14</td><td>10 AM–1 PM</td><td>A-Block Hall 2</td><td>Dr. A. Rao</td></tr>
+        <tr><td style="font-weight:500">Engineering Ethics</td><td><code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:11px">HS501</code></td><td>Dec 16</td><td>2 PM–5 PM</td><td>C-Block Hall 1</td><td>Dr. P. Joshi</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>`;
+}
+
+function studentResults(){
+  return `<div class="grid grid-2 section">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Semester 4 Results</div><span class="badge badge-success">Passed</span></div>
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:16px;padding:16px;background:#f9fafb;border-radius:var(--radius-sm)">
+      <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="none" stroke="#e5e7eb" stroke-width="8"/><circle cx="40" cy="40" r="34" fill="none" stroke="url(#gg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(8.72/10)*213} 213" stroke-dashoffset="53" transform="rotate(-90 40 40)"/><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs></svg>
+      <div><div style="font-size:32px;font-weight:700;color:var(--accent1)">8.72</div><div style="font-size:12px;color:var(--muted)">SGPA — Semester 4</div><div style="font-size:11px;color:var(--success);margin-top:4px">↑ 0.3 from Sem 3</div></div>
+      <div><div style="font-size:20px;font-weight:700">8.41</div><div style="font-size:11px;color:var(--muted)">CGPA Overall</div></div>
+    </div>
+    ${[['Data Structures','CS401',96,'A+'],['Operating Systems','CS402',88,'A'],['DBMS','CS403',82,'A'],['Computer Graphics','CS404',74,'B+'],['Math IV','MA401',91,'A+']].map(([s,c,m,g])=>`<div class="grade-row"><div><div style="font-weight:500;font-size:13px">${s}</div><div style="font-size:11px;color:var(--muted)">${c}</div></div><div style="text-align:center"><div style="font-size:22px;font-weight:700">${m}</div><div style="font-size:10px;color:var(--muted)">/ 100</div></div><div class="grade-letter grade-${g[0]}">${g}</div></div>`).join('')}
+  </div>
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">CGPA Trend</div></div>
+      <div style="position:relative;height:180px"><canvas id="trendChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Answer Scripts</div><span class="badge badge-info">Sem 4</span></div>
+      ${[['Data Structures','CS401','Available'],['Operating Systems','CS402','Available'],['DBMS','CS403','Available'],['Computer Graphics','CS404','Processing']].map(([s,c,st])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><div><div style="font-weight:500">${s}</div><div style="font-size:11px;color:var(--muted)">${c}</div></div><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" ${st==='Processing'?'disabled':''} onclick="alert('📄 Opening answer script viewer...')">${st==='Available'?'👁 View':'⏳ Processing'}</button></div>`).join('')}
+    </div>
+  </div>
+</div>`;
+}
+
+function studentPayments(){
+  return `<div class="grid grid-4 section">
+  ${[['Total Fees','₹1,20,000','Annual'],['Paid','₹1,07,500','2 installments'],['Due','₹12,500','By Nov 30'],['Scholarship','₹15,000','Applied']].map(([l,v,s])=>`<div class="card stat-card"><div class="stat-val" style="font-size:20px">${v}</div><div class="stat-label">${l}</div><div class="stat-trend" style="color:var(--muted)">${s}</div></div>`).join('')}
+  </div>
+  <div class="alert alert-warn section">💰 <div>Semester 5 tuition fees of <strong>₹12,500</strong> are due by <strong>November 30, 2024</strong>. Late payment attracts a ₹500/day penalty.</div></div>
+  <div class="grid grid-2 section">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Pay Fees Online</div></div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Secure payment via UPI, Net Banking, or Card</div>
+      <div style="margin-bottom:12px"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">Amount</div><input style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-weight:600" value="₹12,500" readonly></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        ${['UPI','Net Banking','Credit Card','Debit Card'].map(m=>`<span class="chip">${m}</span>`).join('')}
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="alert('🔒 Redirecting to secure payment gateway...')">Pay ₹12,500 Securely 🔒</button>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Payment History</div><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="alert('📥 Downloading all receipts...')">Download All</button></div>
+      ${[['Sep 2024','Semester 5 - Installment 1','₹57,500','Paid'],['Mar 2024','Semester 4 - Full Fee','₹1,15,000','Paid'],['Sep 2023','Semester 3 - Full Fee','₹1,10,000','Paid']].map(([d,n,a,s])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:500">${n}</div><div style="font-size:11px;color:var(--muted)">${d}</div></div><div style="text-align:right"><div style="font-weight:600;font-size:13px">${a}</div><div style="display:flex;align-items:center;gap:6px;margin-top:2px"><span class="badge badge-success">${s}</span><button class="btn btn-ghost" style="font-size:10px;padding:2px 8px" onclick="alert('🧾 Receipt downloading...')">Receipt</button></div></div></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function studentCampus(){
+  const rooms=['101','102','103','104','105','106','107','108','201','202','203','204','205','206','207','208','Lab1','Lab2','Lab3','Lab4'];
+  const states=['you','occ','occ','free','occ','free','free','occ','free','occ','free','free','occ','occ','free','free','occ','free','occ','free'];
+  return `<div class="grid grid-2 section">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Campus Room Map</div><div style="display:flex;gap:8px;font-size:11px"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--grad);border-radius:2px"></span>You</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#d1fae5;border-radius:2px"></span>Free</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#fee2e2;border-radius:2px"></span>Occupied</span></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Your assigned classroom today: <strong>Room 204</strong></div>
+    <div class="map-grid">${rooms.map((r,i)=>`<div class="room room-${states[i]}">${r}</div>`).join('')}</div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Campus Facilities</div></div>
+    ${[['🏛️','Main Library','Block C, Ground Floor','Open till 9 PM'],['🍽️','Cafeteria','Central Block','Open 8 AM–8 PM'],['🏋️','Gym','Sports Block A','Open 6 AM–10 PM'],['💊','Medical Centre','Admin Block','24×7 Emergency'],['📦','Stationery Store','Block B','9 AM–6 PM'],['🖥️','Computer Centre','Lab Block','8 AM–8 PM']].map(([e,n,l,t])=>`<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:20px">${e}</div><div><div style="font-size:13px;font-weight:500">${n}</div><div style="font-size:11px;color:var(--muted)">${l} · ${t}</div></div></div>`).join('')}
+  </div>
+</div>`;
+}
+
+function studentTransport(){
+  return `<div class="grid grid-2 section">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Your Bus Route</div><span class="badge badge-success">Route 7</span></div>
+    <div class="alert alert-info" style="margin-bottom:12px">🚌 Bus #TN-07-AB-4521 departs at <strong>5:30 PM</strong> from Gate 2 today.</div>
+    <div class="timeline">${[['Thiruvanmiyur','5:15 PM'],['Adyar','5:25 PM'],['IIT Gate','5:40 PM'],['Velachery','5:55 PM'],['Perungudi','6:05 PM'],['Sholinganallur','6:20 PM']].map(([stop,time])=>`<div class="timeline-item"><div style="display:flex;flex-direction:column;align-items:center"><div class="tl-dot" style="background:var(--accent1)"></div><div class="tl-line" style="height:20px;flex:none;margin-top:2px;margin-bottom:2px"></div></div><div class="tl-content"><div class="tl-title">${stop}</div><div class="tl-sub">${time}</div></div></div>`).join('')}</div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">All Bus Routes</div></div>
+    ${[['Route 1','Chennai Central → Campus','Bus #4521 · 48 seats'],['Route 2','Tambaram → Campus','Bus #4522 · 52 seats'],['Route 3','Porur → Campus','Bus #4523 · 48 seats'],['Route 5','Anna Nagar → Campus','Bus #4525 · 44 seats'],['Route 7','Thiruvanmiyur → Campus','Bus #4521 · 48 seats ★ Yours']].map(([r,n,b])=>`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:8px"><span class="badge badge-info">${r}</span><span style="font-size:13px;font-weight:500">${n}</span></div><div style="font-size:11px;color:var(--muted);margin-top:2px">${b}</div></div>`).join('')}
+  </div>
+</div>`;
+}
+
+function studentAI(){
+  return `<div class="card section">
+  <div class="card-header"><div class="card-title">🤖 UniCampus AI Assistant</div><span class="badge badge-purple">Powered by AI</span></div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Ask about attendance, courses, exams, fees, campus, or anything about your academic life.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+    ${['What is my attendance?','When are my exams?','How to pay fees?','Show my GPA','Bus timings?'].map(q=>`<span class="chip" onclick="sendQuick('${q}')">${q}</span>`).join('')}
+  </div>
+  <div class="ai-chat">
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="msg msg-bot">👋 Hi Arjun! I'm your UniCampus AI assistant. I can help with attendance, exams, fees, campus info, and more. What would you like to know?</div>
+    </div>
+    <div class="chat-input">
+      <button style="padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);cursor:pointer;font-size:16px" onclick="startVoice()" title="Voice Input">🎤</button>
+      <input id="chatIn" placeholder="Type your question..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="btn btn-primary" onclick="sendMsg()">Send</button>
+    </div>
+  </div>
+</div>`;
+}
+
+function studentNotifications(){
+  const notes=[
+    {icon:'📋',title:'End-Semester Exam Schedule',body:'Exams begin December 10, 2024. Hall tickets available from Dec 5.',time:'2 hours ago',type:'danger',unread:true},
+    {icon:'⚠️',title:'Attendance Alert — CS501',body:'Your Data Structures attendance is at 68%. Submit undertaking to avoid barring from exams.',time:'5 hours ago',type:'warning',unread:true},
+    {icon:'💰',title:'Fee Payment Reminder',body:'Semester 5 second installment (₹12,500) due by November 30, 2024.',time:'1 day ago',type:'warning',unread:true},
+    {icon:'📊',title:'Semester 4 Results Published',body:'Your SGPA is 8.72. All subjects passed. View detailed marksheet in Results section.',time:'3 days ago',type:'success',unread:false},
+    {icon:'🗓️',title:'Timetable Update',body:'Semester 5 revised timetable effective from November 25. Changes in Thursday schedule.',time:'5 days ago',type:'info',unread:false},
+    {icon:'🏫',title:'Campus Event: Tech Fest 2024',body:'Annual technical festival from December 20–22. Register at events.unicampus.edu',time:'1 week ago',type:'info',unread:false},
+  ];
+  return `<div class="section">${notes.map(n=>`<div class="card" style="margin-bottom:12px;${n.unread?'border-left:3px solid var(--accent1)':''}"><div style="display:flex;gap:12px"><div style="font-size:24px">${n.icon}</div><div style="flex:1"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:600;font-size:14px">${n.title}</div>${n.unread?'<span class="badge badge-info" style="font-size:10px">New</span>':''}</div><div style="font-size:13px;color:var(--muted);margin-top:4px">${n.body}</div><div style="font-size:11px;color:var(--accent1);margin-top:6px">${n.time}</div></div></div></div>`).join('')}</div>`;
+}
+
+function renderStaffPage(el){
+  if(currentPage==='dashboard') el.innerHTML=topbar('Staff Dashboard','Dr. Priya Menon — Computer Science Department',`<button class="btn btn-primary">📋 Mark Attendance</button>`)+staffDashboard();
+  else if(currentPage==='attendance') el.innerHTML=topbar('Mark Attendance','Select subject and mark student attendance')+staffAttendance();
+  else if(currentPage==='results') el.innerHTML=topbar('Upload Results','Upload marks and answer scripts')+staffResults();
+  else if(currentPage==='timetable') el.innerHTML=topbar('My Timetable','Assigned classes and schedule')+studentTimetable();
+  else if(currentPage==='profile') el.innerHTML=topbar('Staff Profile','Dr. Priya Menon — Associate Professor')+staffProfile();
+  else if(currentPage==='ai') el.innerHTML=topbar('AI Analytics','AI-powered insights for your classes')+studentAI();
+  else if(currentPage==='notifications') el.innerHTML=topbar('Send Notifications','Broadcast alerts to students')+staffNotifications();
+  else el.innerHTML=topbar(currentPage,'—')+'<div class="card"><p style="color:var(--muted);font-size:13px">Content for this section coming soon.</p></div>';
+  initCharts();initAI();
+}
+
+function staffDashboard(){
+  return `<div class="grid grid-4 section">
+    ${[['👩‍🎓','My Students','148','3 sections'],['📚','Classes Today','5','Thu schedule'],['⚠️','Below 75%','12','students'],['📝','Pending Uploads','3','answer scripts']].map(([i,l,v,s])=>`<div class="card stat-card"><div class="stat-icon" style="background:#ede9fe;font-size:20px">${i}</div><div class="stat-val">${v}</div><div class="stat-label">${l}</div><div class="stat-trend" style="color:var(--muted)">${s}</div></div>`).join('')}
+  </div>
+  <div class="grid grid-2 section">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Class Attendance Summary</div><span class="badge badge-info">This Week</span></div>
+      <div style="position:relative;height:220px"><canvas id="staffAttChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Today's Classes</div><span class="badge badge-purple">Nov 21</span></div>
+      ${[['9:00 AM','Data Structures — CS501','Section A · Room 204','Completed'],['11:00 AM','Data Structures — CS501','Section B · Room 205','In Progress'],['2:00 PM','Data Structures Lab','Lab 3 · Sections A+B','Upcoming'],['4:00 PM','Tutorial — CS501','Room 204','Upcoming']].map(([t,s,r,st])=>`<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)"><div class="tl-dot" style="background:${st==='Completed'?'#059669':st==='In Progress'?'#4f46e5':'#d1d5db'};margin-top:4px;flex-shrink:0"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">${s}</div><div style="font-size:11px;color:var(--muted)">${t} · ${r}</div></div><span class="badge ${st==='Completed'?'badge-success':st==='In Progress'?'badge-info':'badge-warning'}" style="font-size:10px">${st}</span></div>`).join('')}
+    </div>
+  </div>
+  <div class="card section">
+    <div class="card-header"><div class="card-title">Students Requiring Attention</div><span class="badge badge-danger">Below 75% Attendance</span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Student</th><th>Reg No</th><th>Section</th><th>Attendance</th><th>Undertaking</th><th>Action</th></tr></thead>
+      <tbody>${[['Ravi Shankar','CS2021015','A',64,'Submitted'],['Meena Pillai','CS2021032','A',71,'Pending'],['Karan Bose','CS2021047','B',68,'Not Submitted'],['Asha Patel','CS2021063','B',72,'Approved'],['Dev Kumar','CS2021078','A',69,'Pending']].map(([n,r,s,a,u])=>`<tr><td style="font-weight:500">${n}</td><td style="font-size:12px;color:var(--muted)">${r}</td><td>${s}</td><td><span style="font-weight:700;color:${a<70?'#dc2626':'#d97706'}">${a}%</span></td><td><span class="badge ${u==='Approved'?'badge-success':u==='Submitted'?'badge-info':u==='Pending'?'badge-warning':'badge-danger'}">${u}</span></td><td><button class="btn btn-ghost" style="font-size:11px;padding:4px 8px" onclick="alert('Viewing student details...')">View</button></td></tr>`).join('')}
+      </tbody>
+    </table></div>
+  </div>`;
+}
+
+function staffAttendance(){
+  return `<div class="card section">
+  <div class="card-header"><div class="card-title">Mark Attendance</div><span class="badge badge-info">November 21, 2024</span></div>
+  <div class="grid grid-3" style="margin-bottom:20px;gap:12px">
+    <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">Subject</div><select style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px"><option>CS501 — Data Structures</option><option>CS502 — OS</option></select></div>
+    <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">Section</div><select style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px"><option>Section A</option><option>Section B</option></select></div>
+    <div><div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">Hour</div><select style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px"><option>1st Hour (9–10 AM)</option><option>2nd Hour (10–11 AM)</option><option>3rd Hour (11–12 PM)</option></select></div>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Reg No</th><th>Student Name</th><th>Status</th><th>QR Status</th></tr></thead>
+    <tbody>${[['CS2021001','Arjun Kumar',true],['CS2021002','Anjali Sharma',true],['CS2021003','Rahul Verma',false],['CS2021004','Sneha Nair',true],['CS2021005','Deepak Singh',false],['CS2021006','Pooja Iyer',true],['CS2021007','Amit Gupta',true],['CS2021008','Kavitha Raj',false]].map(([r,n,p])=>`<tr><td style="font-size:12px;color:var(--muted)">${r}</td><td style="font-weight:500">${n}</td><td><div style="display:flex;gap:8px"><button onclick="this.style.background='#d1fae5';this.style.color='#065f46';this.textContent='✓ Present'" style="padding:4px 12px;border-radius:20px;border:1px solid var(--border);cursor:pointer;font-size:11px;background:${p?'#d1fae5':'#fff'};color:${p?'#065f46':'var(--muted)'}">✓ Present</button><button onclick="this.style.background='#fee2e2';this.style.color='#991b1b';this.textContent='✗ Absent'" style="padding:4px 12px;border-radius:20px;border:1px solid var(--border);cursor:pointer;font-size:11px;background:${!p?'#fee2e2':'#fff'};color:${!p?'#991b1b':'var(--muted)'}">✗ Absent</button></div></td><td><span class="badge ${p?'badge-success':'badge-warning'}">${p?'QR Scanned':'Not Scanned'}</span></td></tr>`).join('')}
+    </tbody>
+  </table></div>
+  <div style="display:flex;gap:8px;margin-top:16px;align-items:center;justify-content:space-between">
+    <div style="font-size:13px;color:var(--muted)">5 Present · 3 Absent · 8 Total</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="alert('QR code attendance mode activated. Students can scan to mark attendance.')">📱 QR Mode</button>
+      <button class="btn btn-primary" onclick="alert('✅ Attendance saved successfully!')">Save Attendance</button>
+    </div>
+  </div>
+</div>`;
+}
+
+function staffResults(){
+  return `<div class="grid grid-2 section">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Upload Result Sheet</div></div>
+    <div style="margin-bottom:12px"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">Exam Type</div><select style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px"><option>Mid-Semester Exam</option><option>End-Semester Exam</option><option>Internal Assessment</option></select></div>
+    <div style="margin-bottom:12px"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">Subject</div><select style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px"><option>CS501 — Data Structures</option></select></div>
+    <div class="upload-box" onclick="alert('Upload Excel/CSV result sheet')">📊<div style="margin-top:8px;font-weight:500">Upload Result Sheet</div><div style="font-size:11px;margin-top:4px">Excel / CSV format</div></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:12px" onclick="alert('Results uploaded and published to students!')">Upload & Publish Results</button>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Upload Answer Scripts</div></div>
+    <div style="margin-bottom:12px"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">Student Register No.</div><input style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px" placeholder="e.g. CS2021001"></div>
+    <div class="upload-box" onclick="alert('Upload scanned answer script PDF')">📄<div style="margin-top:8px;font-weight:500">Upload Scanned Answer Script</div><div style="font-size:11px;margin-top:4px">PDF format, max 20MB</div></div>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:12px" onclick="alert('Bulk upload mode: Upload ZIP of all scripts')">📦 Bulk Upload (ZIP)</button>
+  </div>
+</div>`;
+}
+
+function staffProfile(){
+  return `<div class="grid grid-2 section"><div class="card">
+  <div style="display:flex;gap:16px;margin-bottom:20px;align-items:center">
+    <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#0ea5e9);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700">PM</div>
+    <div><div style="font-size:18px;font-weight:700">Dr. Priya Menon</div><div style="font-size:12px;color:var(--muted)">Associate Professor — Computer Science</div><span class="badge badge-success" style="margin-top:6px;display:inline-block">Active Faculty</span></div>
+  </div>
+  ${[['Employee ID','FAC-CS-042'],['Department','Computer Science'],['Designation','Associate Professor'],['Qualification','Ph.D. (IIT Madras)'],['Experience','12 years'],['Email','priya.menon@unicampus.edu'],['Phone','+91 98765 00042']].map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--muted)">${k}</span><span style="font-weight:500">${v}</span></div>`).join('')}
+</div><div class="card">
+  <div class="card-header"><div class="card-title">Assigned Subjects</div></div>
+  ${[['CS501','Data Structures','A,B'],['CS502','Operating Systems','A'],['CS601','Advanced Algorithms','M.Tech'],].map(([c,n,s])=>`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between"><div><code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:11px">${c}</code> <span style="font-weight:500;font-size:13px">${n}</span></div><span class="badge badge-purple">Sec ${s}</span></div></div>`).join('')}
+</div></div>`;
+}
+
+function staffNotifications(){
+  return `<div class="card section">
+  <div class="card-header"><div class="card-title">Send Announcement</div></div>
+  <div style="margin-bottom:12px"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">Target Audience</div><div style="display:flex;gap:8px;flex-wrap:wrap">${['All My Students','Section A','Section B','Low Attendance Students','CS501 Students'].map(g=>`<span class="chip">${g}</span>`).join('')}</div></div>
+  <div style="margin-bottom:12px"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">Subject</div><input style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px" placeholder="Notification subject..."></div>
+  <div style="margin-bottom:12px"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">Message</div><textarea style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;height:100px;font-family:inherit" placeholder="Type your message..."></textarea></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="alert('✅ Notification sent to all selected students!')">Send Notification</button>
+    <button class="btn btn-ghost" onclick="alert('📧 Email broadcast sent!')">Email Broadcast</button>
+  </div>
+</div>`;
+}
+
+function renderAdminPage(el){
+  if(currentPage==='dashboard') el.innerHTML=topbar('Admin Control Panel','Full system overview — UniCampus International',`<button class="btn btn-primary">📊 Generate Report</button>`)+adminDashboard();
+  else if(currentPage==='students') el.innerHTML=topbar('Student Management','All enrolled students')+adminStudents();
+  else if(currentPage==='staff') el.innerHTML=topbar('Staff Management','Faculty and staff directory')+adminStaff();
+  else if(currentPage==='courses') el.innerHTML=topbar('Course Management','Academic courses and assignments')+adminCourses();
